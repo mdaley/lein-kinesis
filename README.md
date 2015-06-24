@@ -10,7 +10,7 @@ Start the kinesis service when running lein by specifying it before the other ta
 
     $ lein kinesis run
 
-Once the task completes, the kinesalite will also be terminated.
+Once the task completes, the kinesalite service will also be terminated.
 
 If for some reason you'd like to run the plugin by itself you can invoke it like this, with any further tasks:
 
