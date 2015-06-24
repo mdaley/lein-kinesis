@@ -20,16 +20,16 @@ When you want to stop it just press <kbd>Ctrl</kbd>+<kbd>C</kbd>.
    
 ## Configuration
 
-There are optional pieces of configuration that control how the kinesalite operates:
+There are optional pieces of configuration that control how the plugin operates:
 
 ```clojure
 (defproject my-project "1.0.0-SNAPSHOT"
   ...
   :plugins [[lein-kinesis "0.1.0"]]
   ...
-  :memcached {:port 12345 ; optional - port on which the service listens, default value is 8023
-              :ssl ; optional - whether ssl is used or not, default value is false
-              }
+  :kinesis {:port 12345 ; optional - port on which the service listens, default value is 8023
+            :ssl ; optional - whether ssl is used or not, default value is false
+            }
   ...
 )
 ```
