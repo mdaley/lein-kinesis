@@ -13,8 +13,8 @@
 
 (defn- run-kinesalite
   "Run the kinesalite process as a background process."
-  [port ssl]
-  (kinesalite "--port" port "--ssl" ssl {:background true :verbose true}))
+  [port]
+  (kinesalite "--port" port {:background true :verbose true}))
 
 (defn- config-value
   "Get a value from project config or, optionally, use a default value."
@@ -38,13 +38,10 @@
   [project & args]
   (if (prerequisites-missing?)
     (println "lein-kinesis: cannot execute as node and npm are not installed. Please install them and try again!")
-    (let [port (config-value project :port 8083)
-          ssl (config-value project :ssl false)]
+    (let [port (config-value project :port 8083)]
       (install-kinesalite-if-necessary)
       (println (str "lein-kinesis: starting in-memory kinesalite instance on port " port "."))
-      (when ssl
-        (println "lein-kinesis: ssl enabled."))
-      (let [kinesis-server (run-kinesalite port ssl)]
+      (let [kinesis-server (run-kinesalite port)]
         (if (seq args)
           (try
             (main/apply-task (first args) project (rest args))

@@ -1,4 +1,4 @@
-(defproject lein-kinesis "0.1.0-SNAPSHOT"
+(defproject lein-kinesis "0.1.1-SNAPSHOT"
   :description "lein plugin that wraps 'kinesalite' a local implementation of Amazon Kinesis."
   :url "http://github.com/mdaley/lein-kinesis"
   :license {:name "Eclipse Public License"
@@ -10,5 +10,4 @@
   :repositories [["releases" {:url "https://clojars.org/repo"
                               :creds :gpg}]]
 
-  :kinesis {:ssl false
-            :port 8083})
+  :kinesis {:port 8083})
