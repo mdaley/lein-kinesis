@@ -1,25 +1,20 @@
 (ns leiningen.kinesis
   (:require [leiningen.core.main :as main]
-            [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
+            [me.raynes.conch :refer [programs]]
+            [me.raynes.conch.low-level :refer [proc stream-to-out]]))
 
 (programs which)
 (programs npm)
-(programs kinesalite)
 
 (defn- installed?
   "Returns true if `exe` is a program that exists on the path."
   [exe]
   (not (clojure.string/blank? (which exe {:throw false}))))
 
-(defn- run-kinesalite
-  "Run the kinesalite process as a background process."
-  [port]
-  (kinesalite "--port" port {:background true :verbose true}))
-
 (defn- config-value
   "Get a value from project config or, optionally, use a default value."
   [project k & [default]]
-  (get (project :memcached) k default))
+  (get (project :kinesis) k default))
 
 (defn- prerequisites-missing?
   "node and npm need to be installed first."
@@ -33,6 +28,15 @@
     (println "lein-kinesis: installing kinesalite")
     (npm "install" "-g" "kinesalite")))
 
+(defn- run-kinesis
+  "Run the kinesis server"
+  [port]
+  (let [p (proc "kinesalite" "--port" (str port) :verbose :very)]
+    (while true
+      (try
+        (stream-to-out p :out)
+        (catch Exception e (println (str e)))))))
+
 (defn kinesis
   "Run kinesalite in memory."
   [project & args]
@@ -41,9 +45,10 @@
     (let [port (config-value project :port 8083)]
       (install-kinesalite-if-necessary)
       (println (str "lein-kinesis: starting in-memory kinesalite instance on port " port "."))
-      (let [kinesis-server (run-kinesalite port)]
+      (let [server (future (run-kinesis port))]
+        (.addShutdownHook (Runtime/getRuntime) (Thread. #(future-cancel server)))
         (if (seq args)
           (try
             (main/apply-task (first args) project (rest args))
-            (finally (future-cancel kinesis-server)))
+            (finally (future-cancel server)))
           (while true (Thread/sleep 5000)))))))
