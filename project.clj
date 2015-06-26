@@ -1,4 +1,4 @@
-(defproject lein-kinesis "0.1.2-SNAPSHOT"
+(defproject lein-kinesis "0.1.3-SNAPSHOT"
   :description "lein plugin that wraps 'kinesalite' a local implementation of Amazon Kinesis."
   :url "http://github.com/mdaley/lein-kinesis"
   :license {:name "Eclipse Public License"
