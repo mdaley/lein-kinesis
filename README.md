@@ -4,7 +4,7 @@ A Leiningen plugin to run an in-memory instance of Amazon's kinesis using Michae
 
 ## Usage
 
-Add `[lein-kinesis "0.1.2"]` to the `:plugins` vector of your project.
+Add `[lein-kinesis "0.1.3"]` to the `:plugins` vector of your project.
 
 Start the kinesis service when running lein by specifying it before the other tasks that you are running, for example:
 
