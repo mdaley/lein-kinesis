@@ -32,10 +32,9 @@
   "Run the kinesis server"
   [port]
   (let [p (proc "kinesalite" "--port" (str port) :verbose :very)]
-    (while true
-      (try
-        (stream-to-out p :out)
-        (catch Exception e (println (str e)))))))
+    (future (stream-to-out p :out))
+    (future (stream-to-out p :err))
+    (while true (Thread/sleep 5000))))
 
 (defn kinesis
   "Run kinesalite in memory."
