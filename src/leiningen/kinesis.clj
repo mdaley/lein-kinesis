@@ -34,7 +34,7 @@
   (let [p (proc "kinesalite" "--port" (str port) :verbose :very)]
     (future (stream-to-out p :out))
     (future (stream-to-out p :err))
-    (while true (Thread/sleep 5000))))
+    (:process p)))
 
 (defn kinesis
   "Run kinesalite in memory."
@@ -44,10 +44,10 @@
     (let [port (config-value project :port 8083)]
       (install-kinesalite-if-necessary)
       (println (str "lein-kinesis: starting in-memory kinesalite instance on port " port "."))
-      (let [server (future (run-kinesis port))]
-        (.addShutdownHook (Runtime/getRuntime) (Thread. #(future-cancel server)))
+      (let [server (run-kinesis port)]
+        (.addShutdownHook (Runtime/getRuntime) (Thread. #(.destroy server)))
         (if (seq args)
           (try
             (main/apply-task (first args) project (rest args))
-            (finally (future-cancel server)))
+            (finally (.destroy server)))
           (while true (Thread/sleep 5000)))))))
