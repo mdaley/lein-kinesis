@@ -1,10 +1,15 @@
 (ns leiningen.kinesis
   (:require [leiningen.core.main :as main]
             [me.raynes.conch :refer [programs]]
-            [me.raynes.conch.low-level :refer [proc stream-to-out]]))
+            [me.raynes.conch.low-level :refer [proc stream-to-out exit-code]]))
 
 (programs which)
 (programs npm)
+(programs mkdir)
+
+(def home-dir (System/getProperty "user.home"))
+(def kinesalite-dir (str home-dir "/.kinesalite"))
+(def kinesalite-exe (str kinesalite-dir "/node_modules/kinesalite/cli.js"))
 
 (defn- installed?
   "Returns true if `exe` is a program that exists on the path."
@@ -24,14 +29,20 @@
 
 (defn- install-kinesalite-if-necessary
   []
-  (when (not (installed? "kinesalite"))
+  (mkdir "-p" kinesalite-dir)
+  (when (not (installed? kinesalite-exe))
     (println "lein-kinesis: installing kinesalite")
-    (npm "install" "-g" "kinesalite")))
+    (let [p (proc "npm" "install" "kinesalite" :dir kinesalite-dir)]
+      (future (stream-to-out p :out))
+      (future (stream-to-out p :err))
+      (println "Waiting for installation to complete.")
+      (exit-code p)
+      (println "Installation completed."))))
 
 (defn- run-kinesis
   "Run the kinesis server"
   [port]
-  (let [p (proc "kinesalite" "--port" (str port) :verbose :very)]
+  (let [p (proc kinesalite-exe "--port" (str port) :verbose :very)]
     (future (stream-to-out p :out))
     (future (stream-to-out p :err))
     (:process p)))
