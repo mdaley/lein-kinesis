@@ -8,8 +8,8 @@
 (programs mkdir)
 
 (def home-dir (System/getProperty "user.home"))
-(def kinesalite-dir (str home-dir "/.kinesalite"))
-(def kinesalite-exe (str kinesalite-dir "/node_modules/kinesalite/cli.js"))
+(def kinesalite-dir (str home-dir "/.kinesalite/"))
+(def kinesalite-exe (str kinesalite-dir "node_modules/kinesalite/cli.js"))
 
 (defn- installed?
   "Returns true if `exe` is a program that exists on the path."
@@ -51,7 +51,8 @@
   "Run kinesalite in memory."
   [project & args]
   (if (prerequisites-missing?)
-    (println "lein-kinesis: cannot execute as node and npm are not installed. Please install them and try again!")
+    (do (println "lein-kinesis: cannot execute as node and npm are not installed. Please install them and try again!")
+        (println "lein-kinesis: if running on debian/ubuntu, which uses 'nodejs', please install node using: sudo apt-get install nodejs-legacy"))
     (let [port (config-value project :port 8083)]
       (install-kinesalite-if-necessary)
       (println (str "lein-kinesis: starting in-memory kinesalite instance on port " port "."))
