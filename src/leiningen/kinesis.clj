@@ -41,8 +41,8 @@
 
 (defn- run-kinesis
   "Run the kinesis server"
-  [port]
-  (let [p (proc kinesalite-exe "--port" (str port) :verbose :very)]
+  [port ssl]
+  (let [p (proc kinesalite-exe "--port" (str port) ssl :verbose :very)]
     (future (stream-to-out p :out))
     (future (stream-to-out p :err))
     (:process p)))
@@ -53,10 +53,11 @@
   (if (prerequisites-missing?)
     (do (println "lein-kinesis: cannot execute as node and npm are not installed. Please install them and try again!")
         (println "lein-kinesis: if running on debian/ubuntu, which uses 'nodejs', please install node using: sudo apt-get install nodejs-legacy"))
-    (let [port (config-value project :port 8083)]
+    (let [port (config-value project :port 8083)
+          ssl (if (config-value project :ssl false) "--ssl" "")]
       (install-kinesalite-if-necessary)
       (println (str "lein-kinesis: starting in-memory kinesalite instance on port " port "."))
-      (let [server (run-kinesis port)]
+      (let [server (run-kinesis port ssl)]
         (.addShutdownHook (Runtime/getRuntime) (Thread. #(.destroy server)))
         (if (seq args)
           (try
